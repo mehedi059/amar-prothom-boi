@@ -1,0 +1,52 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 'lts/*'
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Arrange files
+        run: |
+          mkdir -p www
+          cp index.html www/
+          pip install pillow
+          python make_icon.py
+
+      - name: Install latest dependencies
+        run: |
+          npm install
+          npm install @capacitor/core@latest @capacitor/cli@latest @capacitor/android@latest @capacitor/app@latest @capacitor-community/text-to-speech@latest
+          npm install -D @capacitor/assets@latest
+
+      - name: Add Android platform
+        run: npx cap add android
+
+      - name: Generate icons
+        run: npx capacitor-assets generate --android
+
+      - name: Sync web files
+        run: npx cap sync android
+
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: amar-prothom-boi-apk
+          path: android/app/build/outputs/apk/debug/*.apk
