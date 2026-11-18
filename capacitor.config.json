@@ -1,0 +1,6 @@
+{
+  "appId": "com.mehedi.amarprothomboi",
+  "appName": "আমার প্রথম বই",
+  "webDir": "www",
+  "android": { "allowMixedContent": false }
+}
